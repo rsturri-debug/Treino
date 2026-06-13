@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Treino">
+<title>Treino</title>
+<style>
+*{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0);-webkit-touch-callout:none}
+html,body{height:100%;width:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f2f2f7;color:#1c1c1e;font-size:16px}
+button,input{-webkit-appearance:none;appearance:none;font-family:inherit}
+button{cursor:pointer;border:none;background:none;padding:0}
+.screen{display:none;padding:16px 12px 60px;max-width:480px;margin:0 auto}
+.screen.active{display:block}
+
+/* TOP BAR */
+.top{display:flex;gap:8px;margin-bottom:16px}
+.pbtn{flex:1;padding:13px 0;border-radius:14px;border:2px solid #d1d1d6;background:#fff;font-size:15px;font-weight:600;color:#8e8e93;-webkit-transition:all .2s;transition:all .2s}
+.pbtn.ar{background:#e8f0fc;border-color:#1B4F8A;color:#1B4F8A}
+.pbtn.ak{background:#f0e8fc;border-color:#7B3F8A;color:#7B3F8A}
+
+/* DAY CHIPS */
+.days{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.dchip{-webkit-flex-shrink:0;flex-shrink:0;padding:8px 16px;border-radius:99px;border:1.5px solid #d1d1d6;background:#fff;font-size:13px;font-weight:600;color:#8e8e93;white-space:nowrap}
+.dchip.a{color:#fff;border-color:transparent}
+
+/* PROGRESS */
+.prow{display:-webkit-flex;display:flex;justify-content:space-between;font-size:12px;color:#8e8e93;margin-bottom:6px}
+.pbar{height:5px;border-radius:99px;background:#e5e5ea;overflow:hidden;margin-bottom:14px}
+.pfill{height:100%;border-radius:99px;-webkit-transition:width .4s;transition:width .4s;width:0%}
+
+/* SESSION HEADER */
+.shdr{border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.stit{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.ssub{font-size:13px;color:rgba(255,255,255,.8)}
+
+/* WARMUP */
+.warm{border-left:4px solid #1A5C3A;background:#e9f5ee;border-radius:0 12px 12px 0;padding:10px 14px;margin-bottom:14px}
+.wtit{font-size:13px;font-weight:700;color:#1A5C3A;margin-bottom:6px}
+.witem{font-size:12px;color:#1A5C3A;padding:2px 0;line-height:1.5}
+
+/* EXERCISE CARD */
+.ecard{background:#fff;border:1px solid #e5e5ea;border-radius:14px;padding:14px;margin-bottom:10px;-webkit-transition:opacity .25s;transition:opacity .25s}
+.ecard.done{opacity:.5}
+.etop{display:-webkit-flex;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.ename{font-size:15px;font-weight:700;color:#1c1c1e;-webkit-flex:1;flex:1;padding-right:10px;line-height:1.35}
+.emeta{font-size:13px;font-weight:600;color:#636366;white-space:nowrap;padding-top:2px}
+.badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;margin-bottom:8px}
+.bc{background:#e9f5ee;color:#1A5C3A}
+.bw{background:#fff3e0;color:#e65100}
+.eobs{font-size:12px;color:#8e8e93;margin-bottom:12px;line-height:1.5}
+
+/* SERIES */
+.sgrid{display:-webkit-flex;display:flex;gap:6px;-webkit-flex-wrap:wrap;flex-wrap:wrap;margin-bottom:12px}
+.sbox{-webkit-flex:1;flex:1;min-width:68px;background:#f2f2f7;border-radius:10px;padding:8px 6px;text-align:center}
+.slbl{font-size:11px;color:#aeaeb2;font-weight:600;margin-bottom:6px}
+.sinps{display:-webkit-flex;display:flex;gap:4px}
+.inp{-webkit-flex:1;flex:1;width:100%;border:1.5px solid #d1d1d6;border-radius:8px;background:#fff;color:#1c1c1e;font-size:14px;font-weight:600;padding:7px 3px;text-align:center;outline:none}
+.inp:focus{border-color:#636366}
+.mlbl{display:-webkit-flex;display:flex;justify-content:space-between;margin-top:3px}
+.mlbl span{font-size:10px;color:#c7c7cc;-webkit-flex:1;flex:1;text-align:center}
+
+/* DONE BTN */
+.dbtn{width:100%;padding:11px;border-radius:11px;border:1.5px solid #d1d1d6;background:#f2f2f7;color:#8e8e93;font-size:13px;font-weight:600;-webkit-transition:all .2s;transition:all .2s}
+.dbtn.dr{background:#e8f0fc;border-color:#1B4F8A;color:#1B4F8A}
+.dbtn.dk{background:#f0e8fc;border-color:#7B3F8A;color:#7B3F8A}
+
+/* DIVIDER */
+.divdr{text-align:center;font-size:11px;color:#c7c7cc;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 12px}
+
+/* FINISH */
+.fwrap{background:#fff;border-radius:14px;border:1px solid #e5e5ea;padding:16px;margin-top:6px;text-align:center}
+.fhint{font-size:13px;color:#8e8e93;margin-bottom:12px}
+.fbtn{width:100%;padding:14px;border-radius:12px;color:#fff;font-size:16px;font-weight:700;-webkit-transition:-webkit-transform .15s;transition:transform .15s}
+.fbtn:active{-webkit-transform:scale(0.97);transform:scale(0.97)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);background:rgba(28,28,30,.9);color:#fff;padding:12px 22px;border-radius:12px;font-size:14px;font-weight:500;opacity:0;-webkit-transition:opacity .3s;transition:opacity .3s;pointer-events:none;z-index:9999;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="screen active" id="app">
+  <div class="top">
+    <button class="pbtn ar" id="btnR" ontouchstart="" onclick="setPerson('R')">Rodrigo</button>
+    <button class="pbtn" id="btnK" ontouchstart="" onclick="setPerson('K')">Karoline</button>
+  </div>
+  <div class="days" id="days"></div>
+  <div class="prow"><span id="plbl">0 de 0 concluídos</span><span id="ppct">0%</span></div>
+  <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  <div id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var D={
+  R:{col:'#1B4F8A',lt:'#e8f0fc',bc:'',dc:'dr',
+    days:[
+      {n:'SEG — Push',s:'Peito + ombros + tríceps',
+       w:['Lunge com rotação torácica — 2×8/lado','Hip flexor stretch joelho — 2×30s/lado','Glute bridge — 2×15 (pausa 1s)','World greatest stretch — 1×5/lado'],
+       ex:[
+        {n:'Supino inclinado halteres',s:4,r:'8–10',o:'Composta principal — progressão de carga'},
+        {n:'Supino plano barra',s:4,r:'8–10',o:'Arco natural — escápulas retraídas'},
+        {n:'Crucifixo polia baixa',s:3,r:'12–15',o:'Cotovelos semi-flexos'},
+        {n:'Desenvolvimento halteres sentado',s:3,r:'12–15',o:'Coluna ereta — sem hiperlordose',w:1},
+        {n:'Elevação lateral halteres',s:4,r:'15–20',o:'Deltóide medial — alto volume'},
+        {n:'Tríceps polia corda',s:4,r:'12–15',o:'Cotovelos fixos ao longo do tronco'},
+       ]},
+      {n:'TER — Pull',s:'Dorsais + trapézio + bíceps',
+       w:['Lunge com rotação torácica — 2×8/lado','Hip flexor stretch — 2×30s/lado','Glute bridge — 2×15','World greatest stretch — 1×5/lado'],
+       ex:[
+        {n:'Puxada frontal supinada',s:4,r:'8–10',o:'Puxar cotovelo p/ quadril'},
+        {n:'Remada cavalinho (peito apoiado)',s:4,r:'10–12',o:'Lombar descarregada — preferir sempre esta',w:1},
+        {n:'Face pull polia alta',s:3,r:'20',o:'Puxar orelhas — retração escapular'},
+        {n:'Rosca direta barra EZ',s:4,r:'10–12',o:'Supinação completa'},
+        {n:'Rosca martelo halteres',s:3,r:'12',o:'Neutro — trabalha braquial'},
+        {n:'Dead bug',s:3,r:'8/lado',o:'Lombar colada ao chão em todas as reps',c:1},
+       ]},
+      {n:'QUA — Legs',s:'Quad + posterior + glúteo',
+       w:['Glute bridge — 2×15 (ativar glúteo antes de agachar)','Hip flexor stretch — 2×30s/lado','Goblet squat leve — 2×10 (sem carga)','Monster walk elástico — 1×15/lado'],
+       ex:[
+        {n:'Agachamento goblet halteres',s:4,r:'10–12',o:'Tronco ereto — protege L4-L5',w:1},
+        {n:'Leg press 45°',s:4,r:'12–15',o:'Amplitude completa — costas na plataforma',w:1},
+        {n:'Hip thrust barra',s:5,r:'10–12',o:'Pausa 1s no topo — terapêutico p/ lombar',c:1},
+        {n:'Stiff halteres amplitude controlada',s:4,r:'10–12',o:'Parar antes da flexão lombar — 60-70% range',w:1},
+        {n:'Mesa flexora',s:3,r:'12–15',o:'Sem balanço — isolação isquiotibiais'},
+        {n:'Panturrilha em pé máquina',s:4,r:'15–20',o:'Dorsiflexão completa'},
+       ]},
+      {n:'QUI — Upper',s:'2ª freq peito + costas + braços',
+       w:['Cat-cow — 2×10','Rotação torácica sentado — 2×8/lado','Thread the needle — 2×6/lado','Hip flexor stretch — 1×30s/lado'],
+       ex:[
+        {n:'Supino inclinado halteres',s:3,r:'10–12',o:'2ª frequência — volume moderado'},
+        {n:'Remada cavalinho (peito apoiado)',s:4,r:'10–12',o:'2ª freq costas — lombar descarregada',w:1},
+        {n:'Puxada pegada neutra',s:3,r:'10–12',o:'Largura do dorsal'},
+        {n:'Desenvolvimento Arnold sentado',s:3,r:'12',o:'Coluna ereta — sem hiperextensão lombar',w:1},
+        {n:'Rosca concentrada',s:3,r:'12',o:'Supinação máxima no topo'},
+        {n:'Bird dog',s:3,r:'8/lado',o:'Estabilização lombar — corretivo',c:1},
+       ]},
+      {n:'SEX — Lower+Z2',s:'Glúteo + posterior + core + Zone 2',
+       w:['Glute bridge — 2×15','Hip flexor stretch — 2×30s/lado','Goblet squat leve — 2×10','Monster walk elástico — 1×15/lado'],
+       ex:[
+        {n:'Hip thrust unilateral',s:4,r:'10–12/lado',o:'Pausa 1s — glúteo máximo unilateral',c:1},
+        {n:'Abdução quadril máquina',s:4,r:'20–25',o:'Glúteo médio — estabilização pélvica'},
+        {n:'Agachamento goblet leve',s:3,r:'15',o:'Carga 50% — foco mobilidade ativa',w:1},
+        {n:'Prancha frontal',s:3,r:'45s',o:'RKC — pelve em retroversão leve',w:1},
+        {n:'Bird dog',s:3,r:'8/lado',o:'2ª freq semanal — corretivo lombar',c:1},
+        {n:'Bicicleta / esteira inclinada',s:1,r:'20–25min',o:'FC 120–135 bpm — Zone 2'},
+       ]},
+    ]},
+  K:{col:'#7B3F8A',lt:'#f0e8fc',bc:'',dc:'dk',
+    days:[
+      {n:'SEG — Inf A',s:'Glúteo máximo + posterior',
+       w:['Glute bridge — 2×15 (pausa 1s)','Clamshell com elástico — 2×15/lado','Monster walk elástico — 1×15/lado'],
+       ex:[
+        {n:'Hip thrust barra',s:5,r:'10–12',o:'PRINCIPAL — pausa 1s no topo'},
+        {n:'Stiff halteres romeno',s:4,r:'10–12',o:'Sem restrição patelar'},
+        {n:'Hip thrust unilateral',s:3,r:'12/lado',o:'Progressão do bilateral'},
+        {n:'Abdução quadril máquina',s:4,r:'20–25',o:'Estabilização patelar indireta'},
+        {n:'Mesa flexora',s:3,r:'12–15',o:'Excêntrico 3s na descida'},
+        {n:'Panturrilha sentada',s:3,r:'20',o:'Sóleo — sem impacto patelar'},
+       ]},
+      {n:'TER — Sup A',s:'Empurrar + puxar completo',
+       w:['Cat-cow — 2×10','Rotação torácica sentado — 2×8/lado','Thread the needle — 2×6/lado'],
+       ex:[
+        {n:'Supino inclinado halteres',s:4,r:'10–12',o:'Escápulas retraídas'},
+        {n:'Desenvolvimento halteres sentada',s:3,r:'12–15',o:'Deltóide'},
+        {n:'Elevação lateral halteres',s:3,r:'15–20',o:'Deltóide medial'},
+        {n:'Puxada frontal pegada supinada',s:4,r:'10–12',o:'Dorsal + bíceps'},
+        {n:'Remada curvada halteres',s:3,r:'12',o:'Trapézio + rombóide'},
+        {n:'Tríceps polia corda',s:3,r:'15',o:'Cotovelos fixos'},
+       ]},
+      {n:'QUA — Inf B',s:'Quad adaptado + glúteo médio',
+       w:['Glute bridge — 2×15','Clamshell — 2×15/lado','Monster walk — 1×15/lado'],
+       ex:[
+        {n:'Leg press 45° (0–60° amplitude)',s:5,r:'12–15',o:'JOELHO NAO PASSA 60° DE FLEXAO',w:1},
+        {n:'Agachamento sumô parcial',s:3,r:'12',o:'Não abaixo de 90° — monitorar dor',w:1},
+        {n:'Extensão isométrica 30°',s:3,r:'10×10s',o:'VMO — protocolo condropatia patelar'},
+        {n:'Abdução quadril máquina',s:4,r:'25',o:'Glúteo médio 2ª frequência'},
+        {n:'Hip thrust excêntrico',s:4,r:'10',o:'3s descida — 1s pausa no chão'},
+        {n:'Clamshell com elástico',s:3,r:'20/lado',o:'Glúteo médio + piriforme'},
+       ]},
+      {n:'QUI — Sup B',s:'Variação empurrar + puxar — refeed',
+       w:['Cat-cow — 2×10','Rotação torácica sentado — 2×8/lado','Thread the needle — 2×6/lado'],
+       ex:[
+        {n:'Supino plano halteres',s:4,r:'10–12',o:'2ª freq — ângulo diferente'},
+        {n:'Desenvolvimento Arnold',s:3,r:'12',o:'Deltóide 3 porções'},
+        {n:'Crucifixo inclinado halteres',s:3,r:'15',o:'Peitoral superior'},
+        {n:'Serrote halteres unilateral',s:4,r:'12/lado',o:'Espessura dorsal'},
+        {n:'Rosca direta barra EZ',s:3,r:'12–15',o:'Bíceps 2ª frequência'},
+        {n:'Tríceps testa halteres',s:3,r:'12',o:'Cabeça longa — amplitude'},
+       ]},
+      {n:'SEX — Inf C',s:'Posterior + core + Zone 2',
+       w:['Glute bridge — 2×15','Clamshell — 2×15/lado','Monster walk — 1×15/lado'],
+       ex:[
+        {n:'Stiff unilateral halteres',s:4,r:'12/lado',o:'Equilíbrio — controle pélvico'},
+        {n:'Cadeira flexora excêntrico',s:3,r:'12',o:'4s descida — 1s subida'},
+        {n:'Hip thrust leve recuperação',s:3,r:'15',o:'Carga 60% — 3ª frequência glúteo'},
+        {n:'Prancha frontal + lateral',s:3,r:'45s/30s',o:'Core completo'},
+        {n:'Vacum abdominal',s:3,r:'30s',o:'Expiração forçada — transverso'},
+        {n:'Bicicleta / elíptico',s:1,r:'30min',o:'FC 120–135 bpm — SEM corrida',w:1},
+       ]},
+    ]}
+};
+
+var P='R', DI=0, done={};
+
+function $(id){return document.getElementById(id)}
+function toast(msg){
+  var t=$('toast');
+  t.textContent=msg;
+  t.className='toast show';
+  setTimeout(function(){t.className='toast'},2200);
+}
+
+function setPerson(p){
+  P=p; DI=0; done={};
+  $('btnR').className='pbtn'+(p==='R'?' ar':'');
+  $('btnK').className='pbtn'+(p==='K'?' ak':'');
+  renderDays(); render();
+}
+
+function setDay(i){
+  DI=i; done={};
+  renderDays(); render();
+}
+
+function renderDays(){
+  var days=D[P].days, col=D[P].col, html='';
+  for(var i=0;i<days.length;i++){
+    var a=i===DI;
+    var nm=days[i].n.split('—')[0].trim();
+    var st=a?('background:'+col+';color:#fff;border-color:'+col):'';
+    html+='<button class="dchip'+(a?' a':'')+'" style="'+st+'" ontouchstart="" onclick="setDay('+i+')">'+nm+'</button>';
+  }
+  $('days').innerHTML=html;
+}
+
+function updProg(){
+  var sess=D[P].days[DI];
+  var total=sess.ex.length;
+  var count=0;
+  for(var k in done){if(done[k])count++;}
+  var pct=total?Math.round(count/total*100):0;
+  $('plbl').textContent=count+' de '+total+' concluídos';
+  $('ppct').textContent=pct+'%';
+  $('pfill').style.width=pct+'%';
+  $('pfill').style.background=D[P].col;
+}
+
+function toggleDone(i){
+  done[i]=!done[i];
+  var card=$('c'+i), btn=$('d'+i), dc=D[P].dc;
+  if(done[i]){
+    card.classList.add('done');
+    btn.className='dbtn '+dc;
+    btn.textContent='✓ Concluído';
+    toast('Exercício concluído!');
+  } else {
+    card.classList.remove('done');
+    btn.className='dbtn';
+    btn.textContent='Marcar como concluído';
+  }
+  updProg();
+}
+
+function finish(){
+  var sess=D[P].days[DI];
+  var total=sess.ex.length, count=0;
+  for(var k in done){if(done[k])count++;}
+  if(count<total){
+    if(!confirm('Ainda '+(total-count)+' exercício(s) pendente(s). Finalizar mesmo assim?'))return;
+  }
+  toast('Treino finalizado! Registre as cargas na planilha.');
+}
+
+function render(){
+  var d=D[P], sess=d.days[DI], col=d.col, html='';
+
+  html+='<div class="shdr" style="background:'+col+'"><div class="stit">'+sess.n+'</div><div class="ssub">'+sess.s+'</div></div>';
+
+  if(sess.w&&sess.w.length){
+    html+='<div class="warm"><div class="wtit">Aquecimento — 5 min antes de carregar</div>';
+    for(var i=0;i<sess.w.length;i++) html+='<div class="witem">· '+sess.w[i]+'</div>';
+    html+='</div>';
+  }
+
+  html+='<div class="divdr">Treino principal</div>';
+
+  for(var i=0;i<sess.ex.length;i++){
+    var ex=sess.ex[i];
+    var bc=ex.c?'bc bw':'';
+    if(ex.c) bc='badge bc';
+    else if(ex.w) bc='badge bw';
+    else bc='badge';
+    var bl=ex.c?'corretivo':ex.w?'adaptado':'principal';
+    var bst=ex.c?'background:#e9f5ee;color:#1A5C3A':ex.w?'background:#fff3e0;color:#e65100':'background:'+d.lt+';color:'+col;
+
+    html+='<div class="ecard" id="c'+i+'">';
+    html+='<div class="etop"><div class="ename">'+ex.n+'</div><div class="emeta">'+ex.s+'×'+ex.r+'</div></div>';
+    html+='<span class="badge" style="'+bst+'">'+bl+'</span>';
+    html+='<div class="eobs">'+ex.o+'</div>';
+    html+='<div class="sgrid">';
+    for(var s=0;s<ex.s;s++){
+      html+='<div class="sbox"><div class="slbl">Série '+(s+1)+'</div>';
+      html+='<div class="sinps">';
+      html+='<input class="inp" type="number" inputmode="decimal" placeholder="kg" min="0" step="0.5">';
+      html+='<input class="inp" type="number" inputmode="numeric" placeholder="rep" min="0" step="1">';
+      html+='</div><div class="mlbl"><span>kg</span><span>reps</span></div></div>';
+    }
+    html+='</div>';
+    html+='<button class="dbtn" id="d'+i+'" ontouchstart="" onclick="toggleDone('+i+')">Marcar como concluído</button>';
+    html+='</div>';
+  }
+
+  html+='<div class="fwrap"><div class="fhint">Quando terminar a sessão:</div>';
+  html+='<button class="fbtn" style="background:'+col+'" ontouchstart="" onclick="finish()">Finalizar treino</button></div>';
+
+  $('content').innerHTML=html;
+  updProg();
+}
+
+setPerson('R');
+</script>
+</body>
+</html>
